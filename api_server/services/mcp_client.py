@@ -24,11 +24,9 @@ MCP工具说明：
 版本：1.0.0
 """
 
-import asyncio
 import json
-import sys
 import os
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from api_server.config.settings import settings
 
 # 使用官方MCP Python SDK
@@ -64,13 +62,12 @@ class MCPClientService:
         self.project_root = os.path.dirname(api_server_dir)  # 项目根目录
         self.server_path = os.path.join(self.project_root, settings.MCP_SERVER_PATH)
         
-        # 记录初始化信息
+        # 记录初始化信息（仅在调试模式下显示详细信息）
         print(f"🔧 MCP客户端初始化:")
-        print(f"   当前文件: {current_file}")
         print(f"   项目根目录: {self.project_root}")
         print(f"   MCP服务器路径: {self.server_path}")
         print(f"   文件是否存在: {os.path.exists(self.server_path)}")
-        
+
         # 连接状态标记（用于健康检查）
         self.is_connected = False
     

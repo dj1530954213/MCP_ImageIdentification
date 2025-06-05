@@ -25,7 +25,7 @@ MCP图像识别系统 - 主应用程序
 import asyncio
 import uvicorn
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -128,18 +128,8 @@ async def global_exception_handler(request, exc):
         content=error_response.model_dump()
     )
 
-# ==================== API密钥验证 ====================
-
-async def verify_api_key(api_key: str = None):
-    """
-    API密钥验证依赖
-    
-    验证请求中的API密钥是否有效。
-    当前为可选验证，可根据需要启用。
-    """
-    if settings.API_KEY and api_key != settings.API_KEY:
-        raise HTTPException(status_code=401, detail="Invalid API key")
-    return True
+# ==================== API接口不需要密钥验证 ====================
+# 注意：简道云API密钥仅用于MCP服务器调用简道云API，不用于验证客户端请求
 
 # ==================== 核心API路由 ====================
 
@@ -212,22 +202,18 @@ async def get_tools():
         raise HTTPException(status_code=500, detail=f"获取工具列表失败: {str(e)}")
 
 @app.post("/api/process-record", response_model=APIResponse)
-async def process_record(
-    request: ProcessRecordRequest,
-    api_key_valid: bool = Depends(verify_api_key)
-):
+async def process_record(request: ProcessRecordRequest):
     """
     处理单个记录接口
-    
+
     执行完整的AI处理流程：
     1. 通过MCP获取简道云数据
     2. 进行图像识别处理
     3. 使用AI模型处理识别结果
     4. 通过MCP保存处理结果到简道云
-    
+
     Args:
         request: 处理请求参数
-        api_key_valid: API密钥验证结果
     """
     try:
         print(f"📥 收到处理请求: {request.record_id}")
@@ -259,26 +245,21 @@ async def process_record(
         raise HTTPException(status_code=500, detail=f"处理失败: {str(e)}")
 
 @app.post("/api/batch-process", response_model=APIResponse)
-async def batch_process(
-    request: BatchProcessRequest,
-    api_key_valid: bool = Depends(verify_api_key)
-):
+async def batch_process(request: BatchProcessRequest):
     """
     批量处理记录接口
-    
+
     并发处理多个记录，控制并发数量以避免系统过载。
-    
+
     Args:
         request: 批量处理请求参数
-        api_key_valid: API密钥验证结果
     """
     try:
         print(f"📥 收到批量处理请求: {len(request.record_ids)} 条记录")
         
         # 执行批量AI处理
         result = await ai_processor_service.batch_process(
-            record_ids=request.record_ids,
-            priority=request.priority
+            record_ids=request.record_ids
         )
         
         print(f"📤 批量处理完成: 成功 {result.get('success_count', 0)}, 失败 {result.get('failed_count', 0)}")

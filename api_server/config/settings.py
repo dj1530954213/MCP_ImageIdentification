@@ -64,26 +64,20 @@ class Settings(BaseSettings):
     # ==================== 简道云配置 ====================
     # 重要：这些配置仅供MCP服务器使用，API服务器不直接使用
     # 所有简道云操作都必须通过MCP服务器的工具进行
-    JIANDAOYUN_API_KEY: Optional[str] = "APIG0RKQN2YWQHQHQHQHQHQHQHQHQHQH"  # 简道云API密钥
+    JIANDAOYUN_API_KEY: Optional[str] = "WuVMLm7r6s1zzFTkGyEYXQGxEZ9mLj3h"  # 简道云API密钥
     JIANDAOYUN_APP_ID: Optional[str] = "67d13e0bb840cdf11eccad1e"           # 简道云应用ID
     JIANDAOYUN_ENTRY_ID: Optional[str] = "683ff705c700b55c74bb24ab"         # 简道云表单ID
     JIANDAOYUN_BASE_URL: str = "https://api.jiandaoyun.com"                 # 简道云API基础URL
-    JIANDAOYUN_SOURCE_FIELD: str = "_widget_1749016991917"                  # 源文本字段ID
-    JIANDAOYUN_RESULT_FIELD: str = "_widget_1749016991918"                  # 结果文本字段ID
+    JIANDAOYUN_SOURCE_FIELD: str = "_widget_1749016991917"                  # 源文本字段ID（数据源）
+    JIANDAOYUN_RESULT_FIELD: str = "_widget_1749016991918"                  # 结果文本字段ID（接收结果）
     
     # ==================== 安全配置 ====================
-    API_KEY: Optional[str] = "mcp-image-recognition-2025"  # API访问密钥
-    ALLOWED_HOSTS: List[str] = ["*"]                       # 允许的主机列表
-    CORS_ORIGINS: List[str] = ["*"]                        # CORS允许的源
-    
+    # 注意：当前系统不使用API密钥验证，简道云API密钥仅供MCP服务器使用
+    CORS_ORIGINS: List[str] = ["*"]  # CORS允许的源，生产环境应限制具体域名
+
     # ==================== 性能配置 ====================
-    MAX_CONCURRENT_REQUESTS: int = 10  # 最大并发请求数
-    REQUEST_TIMEOUT: int = 300         # 请求超时时间（秒）
-    MAX_FILE_SIZE: int = 10 * 1024 * 1024  # 最大文件大小（10MB）
-    
-    # ==================== 文件处理配置 ====================
-    ALLOWED_IMAGE_TYPES: List[str] = ["jpg", "jpeg", "png", "bmp", "tiff"]  # 支持的图片格式
-    TEMP_DIR: str = "temp"                                                   # 临时文件目录
+    MAX_CONCURRENT_REQUESTS: int = 10  # 最大并发请求数，控制系统负载
+    REQUEST_TIMEOUT: int = 300         # 请求超时时间（秒），防止长时间阻塞
     
     # ==================== 日志配置 ====================
     LOG_LEVEL: str = "INFO"                    # 日志级别
@@ -112,37 +106,37 @@ def get_settings() -> Settings:
 def validate_settings() -> bool:
     """
     验证配置的有效性
-    
+
     检查必要的配置项是否正确设置，确保系统能够正常运行。
-    
+    主要验证MCP服务器路径和AI模型配置。
+
     Returns:
         bool: 配置是否有效
-        
+
     Raises:
         ValueError: 配置无效时抛出异常
     """
     errors = []
-    
+
+    # 验证MCP服务器路径（核心组件）
+    if not os.path.exists(settings.MCP_SERVER_PATH):
+        errors.append(f"MCP服务器文件不存在: {settings.MCP_SERVER_PATH}")
+
     # 验证AI模型配置
     if settings.USE_LOCAL_AI and not settings.LOCAL_AI_BASE_URL:
-        errors.append("LOCAL_AI_BASE_URL is required when USE_LOCAL_AI is True")
-    
-    # 验证MCP服务器路径
-    if not os.path.exists(settings.MCP_SERVER_PATH):
-        errors.append(f"MCP server file not found: {settings.MCP_SERVER_PATH}")
-    
-    # 验证简道云配置（仅在非Mock模式下）
-    if not settings.USE_MOCK_VISION:
-        if not settings.JIANDAOYUN_API_KEY:
-            errors.append("JIANDAOYUN_API_KEY is required for real JianDaoYun operations")
-        if not settings.JIANDAOYUN_APP_ID:
-            errors.append("JIANDAOYUN_APP_ID is required for real JianDaoYun operations")
-        if not settings.JIANDAOYUN_ENTRY_ID:
-            errors.append("JIANDAOYUN_ENTRY_ID is required for real JianDaoYun operations")
-    
+        errors.append("启用本地AI时必须配置LOCAL_AI_BASE_URL")
+
+    # 验证简道云配置（当前系统必需）
+    if not settings.JIANDAOYUN_API_KEY:
+        errors.append("简道云API密钥未配置")
+    if not settings.JIANDAOYUN_APP_ID:
+        errors.append("简道云应用ID未配置")
+    if not settings.JIANDAOYUN_ENTRY_ID:
+        errors.append("简道云表单ID未配置")
+
     if errors:
-        raise ValueError(f"Configuration validation failed: {'; '.join(errors)}")
-    
+        raise ValueError(f"配置验证失败: {'; '.join(errors)}")
+
     return True
 
 def get_environment() -> str:

@@ -8,7 +8,7 @@ import json
 import httpx
 from typing import Dict, Any, Optional
 from api_server.config.settings import settings
-from api_server.models.response_models import AIProcessResult
+from api_server.models.models import AIProcessResult
 
 class LocalAIProvider:
     """本地AI模型提供者"""

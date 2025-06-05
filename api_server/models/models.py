@@ -24,14 +24,14 @@ from pydantic import BaseModel, Field
 class ProcessStatus(str, Enum):
     """
     处理状态枚举
-    
+
     定义了记录处理的各种状态，用于跟踪处理进度。
+    当前系统支持的状态包括等待、处理中、成功和失败。
     """
     PENDING = "pending"       # 等待处理
     PROCESSING = "processing" # 正在处理
     SUCCESS = "success"       # 处理成功
     FAILED = "failed"         # 处理失败
-    CANCELLED = "cancelled"   # 处理取消
 
 class VisionResultType(str, Enum):
     """

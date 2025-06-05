@@ -30,7 +30,7 @@ from api_server.models.models import (
 )
 from api_server.services.mcp_client import mcp_client_service
 from api_server.providers.vision_provider import mock_vision_provider
-from api_server.providers.ai_provider import local_ai_provider
+from api_server.providers.local_ai_provider import local_ai_provider
 
 class AIProcessorService:
     """
@@ -176,22 +176,13 @@ class AIProcessorService:
             
             result = await self.mcp_client.get_record(record_id)
             
-            print(f"📨 MCP客户端返回结果:")
-            print(f"   - 成功状态: {result.get('success')}")
-            print(f"   - 结果类型: {type(result)}")
-            print(f"   - 结果字段: {list(result.keys()) if isinstance(result, dict) else 'N/A'}")
-            
             if result.get("success"):
                 data = result.get("data", {})
                 print(f"✅ MCP数据获取成功")
-                print(f"📊 数据类型: {type(data)}")
                 if isinstance(data, dict):
-                    print(f"📊 数据字段: {list(data.keys())}")
                     print(f"📄 源文本预览: {str(data.get('source_text', ''))[:100]}...")
                 elif isinstance(data, list):
                     print(f"📊 数据条数: {len(data)}")
-                    if data:
-                        print(f"📄 第一条数据预览: {str(data[0])[:100]}...")
             else:
                 print(f"❌ MCP数据获取失败: {result.get('error', '未知错误')}")
             
@@ -379,7 +370,7 @@ class AIProcessorService:
                 "error": error_msg
             }
 
-    async def batch_process(self, record_ids: List[str], priority: int = 1) -> Dict[str, Any]:
+    async def batch_process(self, record_ids: List[str]) -> Dict[str, Any]:
         """
         批量处理记录
 
@@ -387,7 +378,6 @@ class AIProcessorService:
 
         Args:
             record_ids: 要处理的记录ID列表
-            priority: 处理优先级（当前未使用）
 
         Returns:
             Dict[str, Any]: 批量处理结果
