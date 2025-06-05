@@ -8,8 +8,7 @@ import logging
 from typing import List, Dict, Any, Optional
 import httpx
 
-# 配置日志
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# 配置日志 - 使用现有的日志配置
 logger = logging.getLogger(__name__)
 
 class JianDaoYunClient:
@@ -106,16 +105,14 @@ class JianDaoYunClient:
         request_body = {
             "app_id": self.app_id,
             "entry_id": self.entry_id,
-            "data_list": [
-                {
-                    self.source_field: {
-                        "value": source_text
-                    },
-                    self.result_field: {
-                        "value": result_text
-                    }
+            "data": {
+                self.source_field: {
+                    "value": source_text
+                },
+                self.result_field: {
+                    "value": result_text
                 }
-            ]
+            }
         }
         
         try:

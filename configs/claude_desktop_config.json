@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "jiandaoyun-processor": {
+      "command": "python",
+      "args": ["core/servers/mcp_server_final.py"],
+      "cwd": "C:\\Program Files\\Git\\code\\MCP_ImageIdentification",
+      "env": {
+        "PYTHONPATH": "C:\\Program Files\\Git\\code\\MCP_ImageIdentification\\core\\src"
+      }
+    }
+  }
+}

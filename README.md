@@ -1,91 +1,127 @@
-# MCP JianDaoYun 数据处理系统
+# 🚀 MCP 简道云数据处理系统
 
-这是一个基于 Model Context Protocol (MCP) 的简道云数据处理系统，用于验证 MCP 与简道云集成的可行性。
+## 🎯 项目概述
 
-## 功能说明
+这是一个基于MCP（Model Context Protocol）的简道云数据处理系统，提供标准化的数据查询、处理和保存功能。
 
-本项目实现了简单的数据处理流程：
-1. 从简道云读取数据
-2. 为数据添加处理标识
-3. 将处理后的数据推送回简道云
+### ✨ 主要特性
 
-## 环境要求
+- 🔧 **标准MCP协议支持** - 完全遵循MCP规范
+- 🌐 **多客户端兼容** - 支持Claude Desktop、MCP Inspector等
+- 🛠️ **简道云集成** - 无缝对接简道云API
+- 📊 **数据处理** - 智能文本处理和标识添加
+- 🎮 **交互式界面** - 用户友好的操作体验
 
-- Python 3.8+
-- uv (推荐) 或 pip
+## 📁 项目结构
 
-## 安装和运行
-
-### 1. 创建虚拟环境并安装依赖
-
-使用 uv (推荐):
-```bash
-# 安装 uv (如果还没有安装)
-pip install uv
-
-# 创建虚拟环境并安装依赖
-uv venv
-uv pip install -e ".[dev]"
+```
+MCP_ImageIdentification/
+├── 📁 core/                    # 🔧 核心功能
+│   ├── 📁 src/                # 📚 源代码库
+│   │   └── mcp_jiandaoyun/    # 简道云模块
+│   ├── 📁 servers/            # 🖥️ MCP服务器实现
+│   │   ├── mcp_server_final.py      # 最终版服务器 (推荐)
+│   │   ├── mcp_server_standard.py   # 标准版服务器
+│   │   └── mcp_server_basic.py      # 基础版服务器
+│   └── 📁 clients/            # 🖱️ MCP客户端实现
+│       ├── mcp_client_final.py      # 最终版客户端
+│       ├── mcp_client_standard.py   # 标准版客户端
+│       └── simple_mcp_client.py     # 简化版客户端
+├── 📁 examples/               # 🎯 示例代码
+│   └── mcp_standard/          # 标准MCP示例
+│       ├── quickstart.py      # 快速开始
+│       └── interactive_demo.py # 交互式演示
+├── 📁 tests/                  # 🧪 测试文件
+├── 📁 configs/                # ⚙️ 配置文件
+├── 📁 docs/                   # 📚 文档
+├── 📁 scripts/                # 🔧 脚本工具
+└── 📁 logs/                   # 📝 日志文件
 ```
 
-或使用传统方式:
+## 🚀 快速开始
+
+### 1️⃣ 环境设置
+
 ```bash
-# 创建虚拟环境
-python -m venv venv
-
-# 激活虚拟环境
-# Windows:
-venv\Scripts\activate
-# macOS/Linux:
-source venv/bin/activate
-
 # 安装依赖
-pip install -e ".[dev]"
+python scripts/setup.py
+
+# 配置环境变量 (复制并编辑 configs/.env.example)
+cp configs/.env.example .env
 ```
 
-### 2. 激活虚拟环境
+### 2️⃣ 启动方式
 
-**Windows:**
+#### 🔍 使用MCP Inspector (推荐用于测试)
 ```bash
-venv\Scripts\activate
+python scripts/start_server.py server --mode inspector
 ```
 
-**macOS/Linux:**
+#### 🖥️ 使用自定义客户端
 ```bash
-source venv/bin/activate
+python scripts/start_server.py client
 ```
 
-### 3. 运行 MCP 服务器
-
-开发模式 (使用 MCP Inspector):
+#### 🎮 运行示例
 ```bash
-mcp dev src/mcp_jiandaoyun/server.py
+# 快速开始示例
+python scripts/start_server.py example --type quickstart
+
+# 交互式演示
+python scripts/start_server.py example --type interactive
 ```
 
-直接运行:
+#### 🏢 Claude Desktop集成
 ```bash
-python src/mcp_jiandaoyun/server.py
+# 将 configs/claude_desktop_config.json 内容添加到Claude Desktop配置
+# 重启Claude Desktop即可使用
 ```
 
-## MCP 工具说明
+## 🛠️ 可用工具
 
-本系统提供以下 MCP 工具：
-
-1. **jiandaoyun_query_data()**: 查询简道云数据
-2. **add_processed_marker(text)**: 为文本添加处理标识
-3. **jiandaoyun_create_data(source_text, result_text)**: 创建新的简道云数据
-
-## 使用示例
-
-通过大模型调用：
-```
-请从简道云读取数据，添加处理标识后写回
+### 📊 query_data
+查询简道云中的现有数据
+```python
+# 查询最近10条数据
+result = await client.call_tool("query_data", {"limit": 10})
 ```
 
-## 配置信息
+### 💾 process_and_save
+为文本添加标识并保存到简道云
+```python
+# 处理并保存文本
+result = await client.call_tool("process_and_save", {
+    "original_text": "测试文本",
+    "marker": "[重要]"
+})
+```
 
-- API Key: WuVMLm7r6s1zzFTkGyEYXQGxEZ9mLj3h
-- 应用ID: 67d13e0bb840cdf11eccad1e
-- 表单ID: 683ff705c700b55c74bb24ab
-- 数据源字段: _widget_1749016991917
-- 接收结果字段: _widget_1749016991918
+## 📚 文档
+
+- 📖 [MCP使用指南](docs/MCP_GUIDE.md) - 详细的MCP使用说明
+- 🔧 [API参考](docs/API_REFERENCE.md) - 完整的API文档
+
+## ⚙️ 配置
+
+### 环境变量配置
+在 `.env` 文件中设置：
+```bash
+JIANDAOYUN_API_KEY=your_api_key_here
+JIANDAOYUN_APP_ID=your_app_id_here
+JIANDAOYUN_ENTRY_ID=your_entry_id_here
+JIANDAOYUN_SOURCE_FIELD=_widget_1749016991917
+JIANDAOYUN_RESULT_FIELD=_widget_1749016991918
+```
+
+### Claude Desktop配置
+参考 `configs/claude_desktop_config.json`
+
+## 🧪 测试
+
+```bash
+# 运行完整测试
+python tests/test_mcp_standard.py
+
+# 测试项目结构
+python scripts/start_server.py example --type quickstart
+```
