@@ -64,9 +64,10 @@ class Settings(BaseSettings):
     # ==================== 简道云配置 ====================
     # 重要：这些配置仅供MCP服务器使用，API服务器不直接使用
     # 所有简道云操作都必须通过MCP服务器的工具进行
-    JIANDAOYUN_API_KEY: Optional[str] = "WuVMLm7r6s1zzFTkGyEYXQGxEZ9mLj3h"  # 简道云API密钥
-    JIANDAOYUN_APP_ID: Optional[str] = "67d13e0bb840cdf11eccad1e"           # 简道云应用ID
-    JIANDAOYUN_ENTRY_ID: Optional[str] = "683ff705c700b55c74bb24ab"         # 简道云表单ID
+    # 敏感信息从环境变量读取，不在代码中硬编码
+    JIANDAOYUN_API_KEY: Optional[str] = None                                # 简道云API密钥（从环境变量读取）
+    JIANDAOYUN_APP_ID: Optional[str] = None                                 # 简道云应用ID（从环境变量读取）
+    JIANDAOYUN_ENTRY_ID: Optional[str] = None                               # 简道云表单ID（从环境变量读取）
     JIANDAOYUN_BASE_URL: str = "https://api.jiandaoyun.com"                 # 简道云API基础URL
     JIANDAOYUN_SOURCE_FIELD: str = "_widget_1749016991917"                  # 源文本字段ID（数据源）
     JIANDAOYUN_RESULT_FIELD: str = "_widget_1749016991918"                  # 结果文本字段ID（接收结果）

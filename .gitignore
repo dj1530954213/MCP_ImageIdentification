@@ -22,12 +22,22 @@ wheels/
 
 # Virtual Environment
 .env
+.env.local
+.env.production
+.env.development
 .venv
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
+
+# 敏感配置文件
+config/secrets.py
+config/local_settings.py
+api_server/config/secrets.py
+api_server/config/local_settings.py
+core/config/secrets.py
 
 # IDE
 .vscode/
