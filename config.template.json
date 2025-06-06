@@ -1,0 +1,158 @@
+{
+  "_comment": "MCP图像识别系统配置文件模板",
+  "_instructions": "请复制此文件为 config.json 并填入您的实际配置信息",
+  "_security_warning": "此文件包含敏感信息，请勿提交到版本控制系统",
+  
+  "jiandaoyun": {
+    "_description": "简道云API配置 - 用于数据查询和更新",
+    "api_key": "YOUR_JIANDAOYUN_API_KEY_HERE",
+    "_api_key_help": "简道云API密钥，在简道云开发者中心获取，格式如：YOUR_API_KEY_HERE",
+    
+    "app_id": "YOUR_APP_ID_HERE", 
+    "_app_id_help": "简道云应用ID，在应用设置中查看，格式如：YOUR_APP_ID_HERE",
+    
+    "entry_id": "YOUR_ENTRY_ID_HERE",
+    "_entry_id_help": "简道云表单ID，在表单设置中查看，格式如：YOUR_ENTRY_ID_HERE",
+    
+    "query_url": "https://api.jiandaoyun.com/api/v5/app/entry/data/list",
+    "_query_url_help": "简道云数据查询API端点，通常不需要修改",
+    
+    "update_url": "https://api.jiandaoyun.com/api/v5/app/entry/data/update",
+    "_update_url_help": "简道云数据更新API端点，通常不需要修改",
+    
+    "timeout": 30,
+    "_timeout_help": "API请求超时时间（秒），建议10-60秒",
+    
+    "max_retries": 3,
+    "_max_retries_help": "API请求失败重试次数，建议1-5次",
+    
+    "datetime_field": "_widget_1749173874872",
+    "_datetime_field_help": "日期时间字段ID，在简道云表单设计中查看字段属性",
+    
+    "uploader_field": "_widget_1749016991918", 
+    "_uploader_field_help": "图片上传人字段ID，记录上传者信息",
+    
+    "description_field": "_widget_1749173874866",
+    "_description_field_help": "图片描述字段ID，用于存储图片描述信息",
+    
+    "attachment_field": "_widget_1749173144404",
+    "_attachment_field_help": "附件字段ID，存储图片文件的字段",
+    
+    "result_fields": {
+      "_description": "识别结果字段配置，用于存储AI识别的结果",
+      "result_1": "_widget_1749173874867",
+      "_result_1_help": "主要识别结果字段，存储完整的识别内容",
+      
+      "result_2": "_widget_1749173874868", 
+      "_result_2_help": "设备信息字段，存储设备类型、型号等信息",
+      
+      "result_3": "_widget_1749173874869",
+      "_result_3_help": "技术参数字段，存储压力、温度、功率等技术参数",
+      
+      "result_4": "_widget_1749173874870",
+      "_result_4_help": "环境信息字段，存储安装位置、使用环境等信息",
+      
+      "result_5": "_widget_1749173874871"
+      "_result_5_help": "元数据字段，存储识别时间、Token使用量等元信息"
+    }
+  },
+  
+  "qwen_vision": {
+    "_description": "通义千问Vision API配置 - 用于图像识别",
+    "api_key": "YOUR_QWEN_API_KEY_HERE",
+    "_api_key_help": "通义千问API密钥，在阿里云控制台获取，格式如：YOUR_QWEN_API_KEY_HERE",
+    
+    "api_url": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+    "_api_url_help": "通义千问API端点，使用兼容OpenAI的接口，通常不需要修改",
+    
+    "model": "qwen-vl-max",
+    "_model_help": "使用的模型名称，可选：qwen-vl-max（推荐）、qwen-vl-plus、qwen-vl",
+    
+    "max_tokens": 1500,
+    "_max_tokens_help": "单次识别最大Token数，建议500-2000，影响识别详细程度和费用",
+    
+    "timeout": 60,
+    "_timeout_help": "API请求超时时间（秒），图像识别通常需要较长时间，建议30-120秒",
+    
+    "max_retries": 3,
+    "_max_retries_help": "API请求失败重试次数，建议1-5次",
+    
+    "default_prompt": "请详细描述这张图片的内容，包括设备类型、型号、技术参数、制造信息等。如果图片中有文字，请一并识别出来。",
+    "_default_prompt_help": "默认识别提示词，可根据需要调整以获得更好的识别效果"
+  },
+  
+  "image_processing": {
+    "_description": "图像处理配置 - 控制图片下载和验证",
+    "max_image_size": 52428800,
+    "_max_image_size_help": "最大图片大小（字节），默认50MB，可根据需要调整",
+    
+    "min_image_size": 1024,
+    "_min_image_size_help": "最小图片大小（字节），默认1KB，过小的文件可能不是有效图片",
+    
+    "download_timeout": 30,
+    "_download_timeout_help": "图片下载超时时间（秒），建议10-60秒",
+    
+    "supported_formats": ["JPEG", "PNG", "GIF", "BMP", "WEBP"],
+    "_supported_formats_help": "支持的图片格式列表，可根据需要添加或删除格式",
+    
+    "max_retries": 3,
+    "_max_retries_help": "图片下载失败重试次数，建议1-5次"
+  },
+  
+  "logging": {
+    "_description": "日志配置 - 控制日志记录行为",
+    "level": "INFO",
+    "_level_help": "日志级别，可选：DEBUG（详细）、INFO（一般）、WARNING（警告）、ERROR（错误）",
+    
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "_format_help": "日志格式，通常不需要修改",
+    
+    "file_enabled": true,
+    "_file_enabled_help": "是否启用文件日志，建议启用以便问题排查",
+    
+    "file_path": "logs/mcp_server.log",
+    "_file_path_help": "日志文件路径，相对于项目根目录",
+    
+    "max_file_size": 10485760,
+    "_max_file_size_help": "单个日志文件最大大小（字节），默认10MB",
+    
+    "backup_count": 5,
+    "_backup_count_help": "保留的日志文件备份数量，超过后会删除最旧的文件"
+  },
+  
+  "mcp_server": {
+    "_description": "MCP服务器配置 - 控制服务器行为",
+    "name": "JianDaoYun Image Recognition MCP Server",
+    "_name_help": "服务器名称，用于标识和日志记录",
+    
+    "version": "3.0.0",
+    "_version_help": "服务器版本号，通常不需要修改",
+    
+    "max_concurrent_tasks": 3,
+    "_max_concurrent_tasks_help": "最大并发任务数，建议1-5，过高可能导致API限流",
+    
+    "default_query_limit": 5,
+    "_default_query_limit_help": "默认查询数据条数限制，建议1-10",
+    
+    "enable_batch_processing": true,
+    "_enable_batch_processing_help": "是否启用批量处理功能",
+    
+    "batch_size": 5,
+    "_batch_size_help": "批量处理时的批次大小，建议1-10"
+  },
+  
+  "performance": {
+    "_description": "性能优化配置",
+    "connection_pool_size": 10,
+    "_connection_pool_size_help": "HTTP连接池大小，建议5-20",
+    
+    "request_delay": 1.0,
+    "_request_delay_help": "请求间隔时间（秒），避免API限流，建议0.5-2.0",
+    
+    "cache_enabled": false,
+    "_cache_enabled_help": "是否启用缓存（暂未实现）",
+    
+    "cache_ttl": 3600,
+    "_cache_ttl_help": "缓存过期时间（秒），默认1小时"
+  }
+}

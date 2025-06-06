@@ -6,8 +6,10 @@ import os
 def test_local_image():
     """测试本地图片识别"""
     
-    # API配置
-    api_key = 'sk-d0d508de4a724e5fad61cb09e3a839c4'
+    # API配置 - 从配置文件加载
+    from core.src.mcp_jiandaoyun.config import get_config
+    config = get_config()
+    api_key = config.qwen_vision.api_key
     url = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions'
     
     headers = {

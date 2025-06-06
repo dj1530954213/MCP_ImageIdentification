@@ -4,8 +4,13 @@ import json
 def test_qwen_vision_api():
     """测试通义千问Vision API"""
 
-    # API配置
-    api_key = 'sk-d0d508de4a724e5fad61cb09e3a839c4'
+    # API配置 - 从配置文件加载
+    import sys
+    import os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'core', 'src'))
+    from mcp_jiandaoyun.config import get_config
+    config = get_config()
+    api_key = config.qwen_vision.api_key
     url = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions'
 
     headers = {

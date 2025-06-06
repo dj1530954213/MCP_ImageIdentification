@@ -37,18 +37,18 @@ class JianDaoYunConfig(BaseModel):
     
     # API认证配置
     api_key: str = Field(
-        default="WuVMLm7r6s1zzFTkGyEYXQGxEZ9mLj3h",
+        default="",
         description="简道云API密钥"
     )
-    
+
     # 应用配置
     app_id: str = Field(
-        default="67d13e0bb840cdf11eccad1e",
+        default="",
         description="简道云应用ID"
     )
-    
+
     entry_id: str = Field(
-        default="683ff705c700b55c74bb24ab",
+        default="",
         description="简道云表单ID"
     )
     
@@ -134,7 +134,7 @@ class QwenVisionConfig(BaseModel):
     
     # API认证配置
     api_key: str = Field(
-        default="sk-d0d508de4a724e5fad61cb09e3a839c4",
+        default="",
         description="通义千问API密钥"
     )
     
@@ -319,32 +319,66 @@ class AppConfig(BaseModel):
     def from_file(cls, config_path: str) -> 'AppConfig':
         """
         从配置文件创建配置实例
-        
+
+        支持JSON格式的配置文件，自动过滤注释字段（以_开头的字段）
+
         Args:
             config_path: 配置文件路径
-            
+
         Returns:
             AppConfig: 配置实例
         """
         logger.info(f"🔧 从配置文件加载配置: {config_path}")
-        
+
         config_file = Path(config_path)
         if not config_file.exists():
             logger.warning(f"⚠️ 配置文件不存在: {config_path}，使用默认配置")
             return cls()
-        
+
         try:
             import json
             with open(config_file, 'r', encoding='utf-8') as f:
-                config_data = json.load(f)
-            
+                raw_config_data = json.load(f)
+
+            # 过滤注释字段（以_开头的字段）
+            config_data = cls._filter_comments(raw_config_data)
+
             logger.info("✅ 配置文件加载成功")
+            logger.info(f"📊 加载了 {len(config_data)} 个配置模块")
+
             return cls(**config_data)
-            
+
+        except json.JSONDecodeError as e:
+            logger.error(f"❌ 配置文件JSON格式错误: {e}")
+            logger.info("📝 使用默认配置")
+            return cls()
         except Exception as e:
             logger.error(f"❌ 配置文件加载失败: {e}")
             logger.info("📝 使用默认配置")
             return cls()
+
+    @staticmethod
+    def _filter_comments(data):
+        """
+        递归过滤配置数据中的注释字段
+
+        Args:
+            data: 原始配置数据
+
+        Returns:
+            过滤后的配置数据
+        """
+        if isinstance(data, dict):
+            filtered = {}
+            for key, value in data.items():
+                # 跳过以_开头的注释字段
+                if not key.startswith('_'):
+                    filtered[key] = AppConfig._filter_comments(value)
+            return filtered
+        elif isinstance(data, list):
+            return [AppConfig._filter_comments(item) for item in data]
+        else:
+            return data
     
     def validate_config(self) -> bool:
         """
@@ -376,24 +410,48 @@ class AppConfig(BaseModel):
 # 创建全局配置实例，支持延迟初始化
 _app_config: Optional[AppConfig] = None
 
-def get_config() -> AppConfig:
+def get_config(config_file: Optional[str] = None) -> AppConfig:
     """
     获取全局配置实例（单例模式）
-    
+
+    配置加载优先级：
+    1. 指定的配置文件
+    2. 项目根目录的 config.json
+    3. 环境变量
+    4. 默认值
+
+    Args:
+        config_file: 可选的配置文件路径
+
     Returns:
         AppConfig: 配置实例
     """
     global _app_config
     if _app_config is None:
         logger.info("🚀 初始化全局配置...")
-        _app_config = AppConfig.from_env()
-        
+
+        # 确定配置文件路径
+        if config_file:
+            config_path = config_file
+        else:
+            # 查找项目根目录的 config.json
+            project_root = Path(__file__).parent.parent.parent.parent
+            config_path = project_root / "config.json"
+
+        # 尝试从配置文件加载
+        if Path(config_path).exists():
+            logger.info(f"📁 发现配置文件: {config_path}")
+            _app_config = AppConfig.from_file(str(config_path))
+        else:
+            logger.info("📁 未发现配置文件，尝试从环境变量加载...")
+            _app_config = AppConfig.from_env()
+
         # 验证配置
         if not _app_config.validate_config():
             logger.warning("⚠️ 配置验证失败，但继续使用当前配置")
-        
+
         logger.info("✅ 全局配置初始化完成")
-    
+
     return _app_config
 
 def reload_config() -> AppConfig:

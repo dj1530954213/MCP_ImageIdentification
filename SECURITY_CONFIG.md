@@ -93,7 +93,7 @@ uv run python scripts/start_api_server.py
 ```bash
 # 检查是否有敏感信息在Git历史中
 git log --all --grep="API_KEY" --oneline
-git log --all -S "WuVMLm7r6s1zzFTkGyEYXQGxEZ9mLj3h" --oneline
+git log --all -S "YOUR_API_KEY" --oneline
 ```
 
 ### 清理Git历史（如果需要）

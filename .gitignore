@@ -32,12 +32,63 @@ ENV/
 env.bak/
 venv.bak/
 
-# 敏感配置文件
+# ==================== 敏感信息和配置文件 ====================
+# 配置文件（包含API密钥等敏感信息）
+config.json
+config.yaml
+config.yml
+config.toml
+config.ini
+settings.json
+settings.yaml
+settings.yml
+local_config.*
+private_config.*
+secret_config.*
+mcp_config.json
+jiandaoyun_config.json
+qwen_config.json
+
+# Python配置文件
 config/secrets.py
 config/local_settings.py
 api_server/config/secrets.py
 api_server/config/local_settings.py
 core/config/secrets.py
+
+# API密钥和凭证文件
+api_keys.txt
+api_keys.json
+credentials.json
+secrets.json
+keys.json
+tokens.txt
+auth.json
+*.key
+*.pem
+*.p12
+*.pfx
+
+# 数据库文件
+*.db
+*.sqlite
+*.sqlite3
+database.json
+
+# 测试和临时文件
+test_output/
+test_results/
+test_*.json
+temp/
+tmp/
+cache/
+.cache/
+
+# 图片和下载缓存
+images/
+downloads/
+attachments/
+uploads/
 
 # IDE
 .vscode/
