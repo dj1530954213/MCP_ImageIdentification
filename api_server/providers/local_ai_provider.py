@@ -1,64 +1,132 @@
 """
-本地AI模型提供者
-支持通过Ollama调用本地部署的AI模型
+MCP图像识别系统 - 本地AI模型提供者模块
+
+这个模块提供本地AI模型的调用接口，主要通过Ollama框架调用本地部署的AI模型。
+支持多种AI模型，当前主要使用Qwen3:1.7b模型进行文本处理和分析。
+
+主要功能：
+1. 调用本地AI模型进行文本处理
+2. 处理图像识别结果并生成智能分析
+3. 提供健康检查和模型测试功能
+4. 支持备用处理方案
+
+技术特点：
+- 基于Ollama API进行模型调用
+- 异步处理提高性能
+- 完整的错误处理和超时控制
+- 支持自定义提示词和参数
+- 提供详细的处理分析
+
+支持的模型：
+- Qwen3:1.7b（默认）
+- 其他Ollama支持的模型
+
+作者：MCP图像识别系统
+版本：1.0.0
 """
 
-import asyncio
-import json
-import httpx
-from typing import Dict, Any, Optional
-from api_server.config.settings import settings
-from api_server.models.models import AIProcessResult
+import asyncio                                    # 异步编程支持
+import json                                       # JSON数据处理
+import httpx                                      # 异步HTTP客户端
+from typing import Dict, Any, Optional           # 类型注解
+from api_server.config.settings import settings  # 配置设置
+from api_server.models.models import AIProcessResult  # 数据模型
 
 class LocalAIProvider:
-    """本地AI模型提供者"""
-    
+    """
+    本地AI模型提供者
+
+    这个类封装了与本地AI模型的交互逻辑，通过Ollama API调用本地部署的AI模型。
+    主要用于处理图像识别结果，生成智能化的文本分析和格式化输出。
+
+    核心功能：
+    - AI模型调用：通过HTTP API调用本地AI模型
+    - 结果处理：智能处理图像识别结果
+    - 文本生成：生成格式化的处理结果
+    - 健康监控：提供模型健康检查功能
+    """
+
     def __init__(self):
-        self.base_url = settings.LOCAL_AI_BASE_URL
-        self.model = settings.LOCAL_AI_MODEL
-        self.timeout = 60  # 60秒超时
+        """
+        初始化本地AI提供者
+
+        从配置中读取AI模型相关设置，包括API地址、模型名称和超时时间。
+        """
+        # ==================== 基础配置 ====================
+        self.base_url = settings.LOCAL_AI_BASE_URL    # Ollama API基础URL
+        self.model = settings.LOCAL_AI_MODEL          # 使用的AI模型名称
+        self.timeout = 60                             # HTTP请求超时时间（秒）
+
+        print(f"🤖 本地AI提供者初始化完成")
+        print(f"📡 API地址: {self.base_url}")
+        print(f"🧠 模型名称: {self.model}")
+        print(f"⏰ 超时设置: {self.timeout}秒")
         
     async def _call_ollama(self, prompt: str, system_prompt: Optional[str] = None) -> str:
         """
-        调用Ollama API
-        
+        调用Ollama API进行AI模型推理
+
+        这是与本地AI模型交互的核心方法，通过HTTP API调用Ollama服务。
+        支持自定义系统提示词和用户提示词，可以控制模型的行为和输出格式。
+
         Args:
-            prompt: 用户提示
-            system_prompt: 系统提示
-            
+            prompt: 用户提示词，描述具体的任务和要求
+            system_prompt: 系统提示词，定义AI的角色和行为规范
+
         Returns:
-            str: AI响应
+            str: AI模型生成的响应文本
+
+        Raises:
+            Exception: 当API调用失败、超时或网络错误时抛出异常
         """
+        # ==================== 构造API请求 ====================
         url = f"{self.base_url}/api/generate"
-        
+
+        # 构造请求负载，包含模型参数和生成选项
         payload = {
-            "model": self.model,
-            "prompt": prompt,
-            "stream": False,
-            "options": {
-                "temperature": 0.7,
-                "top_p": 0.9,
-                "max_tokens": 1000
+            "model": self.model,                          # 指定使用的AI模型
+            "prompt": prompt,                             # 用户提示词
+            "stream": False,                              # 不使用流式输出
+            "options": {                                  # 生成参数
+                "temperature": 0.7,                       # 控制输出的随机性（0-1）
+                "top_p": 0.9,                            # 核采样参数
+                "max_tokens": 1000                        # 最大生成token数
             }
         }
-        
+
+        # 如果提供了系统提示词，添加到请求中
         if system_prompt:
             payload["system"] = system_prompt
-        
+
+        # ==================== 执行HTTP请求 ====================
         async with httpx.AsyncClient(timeout=self.timeout) as client:
             try:
+                # 发送POST请求到Ollama API
                 response = await client.post(url, json=payload)
-                response.raise_for_status()
-                
+                response.raise_for_status()  # 检查HTTP状态码
+
+                # 解析JSON响应并提取生成的文本
                 result = response.json()
-                return result.get("response", "")
-                
+                ai_response = result.get("response", "")
+
+                print(f"✅ AI模型调用成功，响应长度: {len(ai_response)} 字符")
+                return ai_response
+
             except httpx.TimeoutException:
-                raise Exception(f"AI模型调用超时 (>{self.timeout}秒)")
+                # 请求超时异常
+                error_msg = f"AI模型调用超时 (>{self.timeout}秒)"
+                print(f"⏰ {error_msg}")
+                raise Exception(error_msg)
             except httpx.HTTPStatusError as e:
-                raise Exception(f"AI模型调用失败: HTTP {e.response.status_code}")
+                # HTTP状态码错误
+                error_msg = f"AI模型调用失败: HTTP {e.response.status_code}"
+                print(f"🌐 {error_msg}")
+                raise Exception(error_msg)
             except Exception as e:
-                raise Exception(f"AI模型调用错误: {str(e)}")
+                # 其他异常
+                error_msg = f"AI模型调用错误: {str(e)}"
+                print(f"❌ {error_msg}")
+                raise Exception(error_msg)
     
     async def process_vision_result(self, vision_result: Dict[str, Any], original_text: str = "") -> AIProcessResult:
         """

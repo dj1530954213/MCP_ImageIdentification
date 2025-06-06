@@ -1,17 +1,33 @@
 #!/usr/bin/env python3
 """
 基础MCP服务器实现
-使用原生MCP SDK，不依赖FastMCP
+
+这是一个使用原生MCP SDK实现的简道云数据处理服务器。
+主要功能：
+1. 提供MCP协议标准接口
+2. 查询简道云数据
+3. 处理文本并保存到简道云
+4. 支持STDIO通信模式
+
+技术特点：
+- 使用原生MCP SDK，不依赖FastMCP
+- 支持异步操作
+- 完整的错误处理机制
+- 详细的日志记录
+
+作者：MCP图像识别系统
+版本：1.0.0
 """
 
-import asyncio
-import json
-import logging
-import os
-import sys
-from typing import Any, Dict, List, Optional, Sequence
+import asyncio  # 异步编程支持
+import json     # JSON数据处理
+import logging  # 日志记录
+import os       # 操作系统接口
+import sys      # 系统相关参数和函数
+from typing import Any, Dict, List, Optional, Sequence  # 类型注解
 
-# 添加项目根目录到 Python 路径
+# 动态添加项目根目录到Python路径
+# 这样可以确保无论从哪里运行脚本都能正确导入模块
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 src_path = os.path.join(project_root, 'core', 'src')
 sys.path.insert(0, src_path)
@@ -27,20 +43,26 @@ import mcp.server.stdio
 from mcp_jiandaoyun.jiandaoyun_client import JianDaoYunClient
 from mcp_jiandaoyun.data_processor import DataProcessor
 
-# 配置日志
+# ==================== 日志配置 ====================
+# 配置日志系统，记录服务器运行状态和调试信息
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    filename='mcp_server_basic.log',
-    filemode='a'
+    level=logging.INFO,                                          # 日志级别：INFO及以上
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',  # 日志格式
+    filename='mcp_server_basic.log',                             # 日志文件名
+    filemode='a'                                                 # 追加模式
 )
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # 获取当前模块的日志记录器
 
-# 创建MCP服务器
+# ==================== MCP服务器初始化 ====================
+# 创建MCP服务器实例，服务器名称为"jiandaoyun-basic"
+# 这个名称会在MCP协议握手时使用
 server = Server("jiandaoyun-basic")
 
-# 初始化客户端和处理器
+# ==================== 业务组件初始化 ====================
+# 初始化简道云客户端，负责与简道云API交互
 jiandaoyun_client = JianDaoYunClient()
+
+# 初始化数据处理器，负责文本处理和格式化
 data_processor = DataProcessor()
 
 @server.list_tools()

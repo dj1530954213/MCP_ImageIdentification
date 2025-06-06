@@ -1,49 +1,94 @@
 #!/usr/bin/env python3
 """
-API服务器启动脚本
+MCP图像识别系统 - API服务器启动脚本
+
+这个脚本负责启动API服务器，包括：
+1. 环境检查和配置
+2. 依赖验证
+3. AI模型服务检查
+4. 服务器启动
+
+主要功能：
+- 自动检查和创建必要的配置文件
+- 验证Python依赖包是否安装
+- 检查Ollama服务和AI模型可用性
+- 提供详细的启动日志和错误提示
+- 支持Windows和Linux平台
+
+使用方法：
+    python scripts/start_api_server.py
+
+作者：MCP图像识别系统
+版本：1.0.0
 """
 
-import os
-import sys
-import asyncio
-import subprocess
-from pathlib import Path
+import os                    # 操作系统接口
+import sys                   # 系统相关参数和函数
+import asyncio               # 异步编程支持
+import subprocess            # 子进程管理
+from pathlib import Path     # 路径操作
 
-# Windows兼容性修复 - 在导入任何其他模块之前设置事件循环策略
+# ==================== Windows兼容性修复 ====================
+# 在导入任何其他模块之前设置事件循环策略
+# 这是为了解决Windows平台上的异步子进程问题
 if sys.platform == "win32":
     try:
-        # 使用ProactorEventLoop以支持Windows上的子进程
+        # 使用ProactorEventLoop以支持Windows上的子进程和STDIO操作
         asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
         print("🔧 已设置Windows ProactorEventLoop策略")
     except Exception as e:
         print(f"⚠️ 设置事件循环策略失败: {e}")
+        print("   这可能会影响MCP服务器的STDIO通信")
 
 def check_ollama():
-    """检查Ollama是否运行"""
+    """
+    检查Ollama服务是否正在运行
+
+    通过调用Ollama API的tags端点来检查服务状态。
+    这是验证AI模型服务可用性的第一步。
+
+    Returns:
+        bool: 如果Ollama服务正在运行返回True，否则返回False
+    """
     try:
+        # 使用curl命令调用Ollama API
+        # -s 参数表示静默模式，不显示进度信息
         result = subprocess.run(
             ["curl", "-s", "http://localhost:11434/api/tags"],
-            capture_output=True,
-            text=True,
-            timeout=5
+            capture_output=True,    # 捕获输出
+            text=True,             # 以文本模式处理输出
+            timeout=5              # 5秒超时
         )
+        # 返回码为0表示成功
         return result.returncode == 0
-    except:
+    except Exception:
+        # 任何异常都表示服务不可用
         return False
 
 def check_qwen_model():
-    """检查Qwen模型是否可用"""
+    """
+    检查Qwen3:1.7b模型是否可用
+
+    通过发送一个测试请求到Ollama API来验证指定的AI模型是否已下载并可用。
+    这确保了系统能够正常调用AI模型进行文本处理。
+
+    Returns:
+        bool: 如果Qwen3:1.7b模型可用返回True，否则返回False
+    """
     try:
+        # 构造测试请求，调用Qwen3:1.7b模型
         result = subprocess.run(
             ["curl", "-s", "-X", "POST", "http://localhost:11434/api/generate",
              "-H", "Content-Type: application/json",
              "-d", '{"model": "qwen3:1.7b", "prompt": "test", "stream": false}'],
-            capture_output=True,
-            text=True,
-            timeout=10
+            capture_output=True,    # 捕获输出
+            text=True,             # 以文本模式处理输出
+            timeout=10             # 10秒超时（模型调用需要更长时间）
         )
+        # 检查返回码和响应内容
         return result.returncode == 0 and "response" in result.stdout
-    except:
+    except Exception:
+        # 任何异常都表示模型不可用
         return False
 
 def setup_environment():
